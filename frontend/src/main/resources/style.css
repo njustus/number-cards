@@ -1,0 +1,23 @@
+.card {
+  width: 150px;
+  height: 225px;
+  border: 2px solid black;
+  border-radius: 10px;
+  text-align: center  ;
+}
+
+.card-blue {
+  background-color: dodgerblue;
+}
+
+.card-red {
+  background-color: red;
+}
+
+.closed-card {
+
+}
+
+.empty-card {
+
+}

@@ -27,7 +27,8 @@ object Main {
     <.div(
       NoArgs(),
       <.p(s"test: ${incre.asJson}"),
-      Counter.component(CounterProps(incre.number))
+      Counter.component(CounterProps(incre.number)),
+      GameTable.component()
     ).renderIntoDOM(root)
   }
 }
