@@ -1,5 +1,6 @@
 package com.github.njustus.cards
 
+import com.github.njustus.cards.Counter.CounterProps
 import com.github.njustus.cards.shared.events.Increment
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
@@ -25,7 +26,8 @@ object Main {
     val root = document.getElementById("parent-root")
     <.div(
       NoArgs(),
-      <.p(s"test: ${incre.asJson}")
+      <.p(s"test: ${incre.asJson}"),
+      Counter.component(CounterProps(incre.number))
     ).renderIntoDOM(root)
   }
 }

@@ -24,7 +24,7 @@ lazy val frontend = (project in file("frontend"))
   .settings(
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++=Seq(
-        "com.github.japgolly.scalajs-react" %%% "core" % ScalaJsReactVer,
+        //"com.github.japgolly.scalajs-react" %%% "core" % ScalaJsReactVer,
         // Mandatory
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cats_effect"  % ScalaJsReactVer,
         // Optional utils exclusive to scalajs-react
