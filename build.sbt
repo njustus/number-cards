@@ -1,8 +1,10 @@
 val ScalaJsReactVer = "2.1.1"
 val circeVersion = "0.14.1"
+val Http4sVersion = "0.23.8"
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.13.9"
+  scalaVersion := "2.13.9",
+  scalacOptions ++= Seq()
 )
 
 lazy val shared = (crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure) in file("shared"))
@@ -39,3 +41,15 @@ lazy val frontend = (project in file("frontend"))
 lazy val backend = (project in file("backend"))
   .dependsOn(shared.jvm)
   .settings(commonSettings)
+  .settings(
+    fork := true,
+    connectInput := true,
+    libraryDependencies ++= Seq(
+      "org.http4s" %% "http4s-ember-server" % Http4sVersion,
+      "org.http4s" %% "http4s-ember-client" % Http4sVersion,
+      "org.http4s" %% "http4s-circe" % Http4sVersion,
+      "org.http4s" %% "http4s-dsl" % Http4sVersion,
+      "ch.qos.logback" % "logback-classic" % "1.2.10",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
+    )
+  )
