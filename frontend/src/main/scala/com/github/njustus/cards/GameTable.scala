@@ -1,6 +1,7 @@
 package com.github.njustus.cards
 
 import com.github.njustus.cards.CardComponent.Props
+import com.github.njustus.cards.player.HandComponent
 import com.github.njustus.cards.shared.dtos.Card
 import com.github.njustus.cards.shared.events.DrawCard
 import japgolly.scalajs.react._
@@ -32,12 +33,19 @@ object GameTable {
   }
 
   def renderOpenCard(value: GameState): VdomNode =
-    CardComponent.component(CardComponent.Props(value.openCard))
+    CardComponent.component(value.openCard)
 
   private def renderFn(state: Hooks.UseState[GameState]): VdomNode = {
+    val cards = (for {
+      n <- 1 until 5
+      c <- Seq(Card.BLUE, Card.RED)
+    } yield Card(Card.Number(n), c)).toList
+
+    val hand = HandComponent.component(cards)
     <.div(
       renderClosedCards(state),
-      renderOpenCard(state.value)
+      renderOpenCard(state.value),
+      hand
     )
   }
 

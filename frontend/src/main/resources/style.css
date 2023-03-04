@@ -21,3 +21,8 @@
 .empty-card {
 
 }
+
+.player-hand {
+  display: flex;
+  column-gap: 10px;
+}

@@ -2,6 +2,7 @@ package com.github.njustus.cards
 
 import com.github.njustus.cards.shared.dtos.Card
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.component.ScalaFn.Unmounted
 import japgolly.scalajs.react.vdom.html_<^._
 
 object CardComponent {
@@ -20,6 +21,10 @@ object CardComponent {
       )
   }
 
-  val component = ScalaFnComponent.withHooks[Props]
+  private val comp = ScalaFnComponent.withHooks[Props]
     .render(renderFn)
+
+  def component(card:Card): Unmounted[Props] = component(Some(card))
+  def component(cardOpt:Option[Card]): Unmounted[Props] = comp(Props(cardOpt))
+
 }
