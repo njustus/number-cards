@@ -47,8 +47,11 @@ object GameTable {
     val hand = HandComponent.component(cards, gameEventHandler)
 
     <.div(
-      renderClosedCards(state),
-      renderOpenCard(state.value),
+      <.div(
+        renderClosedCards(state),
+        renderOpenCard(state.value),
+        ^.className:="game-table-center"
+      ),
       hand
     )
   }
