@@ -1,9 +1,10 @@
 package com.github.njustus.cards
 
+import cats.effect.SyncIO
 import com.github.njustus.cards.CardComponent.Props
 import com.github.njustus.cards.player.HandComponent
 import com.github.njustus.cards.shared.dtos.Card
-import com.github.njustus.cards.shared.events.DrawCard
+import com.github.njustus.cards.shared.events.{CardPlayed, DrawCard, GameEvent}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 
@@ -41,7 +42,10 @@ object GameTable {
       c <- Seq(Card.BLUE, Card.RED)
     } yield Card(Card.Number(n), c)).toList
 
-    val hand = HandComponent.component(cards)
+
+    val gameEventHandler = (ev:GameEvent) => state.modState(GameEngine.applyEvent(ev))
+    val hand = HandComponent.component(cards, gameEventHandler)
+
     <.div(
       renderClosedCards(state),
       renderOpenCard(state.value),
