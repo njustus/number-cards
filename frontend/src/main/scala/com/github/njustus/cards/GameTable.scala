@@ -1,5 +1,6 @@
 package com.github.njustus.cards
 
+import com.github.njustus.cards.CardComponent.Props
 import com.github.njustus.cards.shared.dtos.Card
 import com.github.njustus.cards.shared.events.DrawCard
 import japgolly.scalajs.react._
@@ -30,16 +31,8 @@ object GameTable {
     )
   }
 
-  def renderOpenCard(value: GameState): VdomNode = value.openCard match {
-    case Some(card) =>
-      <.div(
-        <.div(card.symbol.display),
-        ^.className := s"card ${card.color.className}"
-    )
-    case None => <.div(
-      "<empty>",
-      ^.className := "card empty-card")
-  }
+  def renderOpenCard(value: GameState): VdomNode =
+    CardComponent.component(CardComponent.Props(value.openCard))
 
   private def renderFn(state: Hooks.UseState[GameState]): VdomNode = {
     <.div(

@@ -8,10 +8,12 @@ object Card {
     def className: String = this match {
       case RED => "card-red"
       case BLUE => "card-blue"
+      case BACK => "closed-card"
     }
   }
   case object RED extends Color
   case object BLUE extends Color
+  case object BACK extends Color
 
   sealed trait Symbol {
     def display: String
