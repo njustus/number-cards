@@ -40,7 +40,7 @@ object GameTable {
   def renderOpenCard(value: GameState): VdomNode =
     CardComponent.component(value.openCard)
 
-  private def renderFn(state: Hooks.UseState[GameState]): VdomNode = {
+  private def renderFn(state: Hooks.UseState[GameState], pubMsg: Hooks.UseState[String => Unit]): VdomNode = {
     val cards = (for {
       n <- 1 until 5
       c <- Seq(Card.BLUE, Card.RED)
@@ -57,7 +57,7 @@ object GameTable {
         renderOpenCard(state.value),
         ^.className:="game-table-center"
       ),
-      <.button("click me", ^.onClick --> IO { println("clicked"); state.value.publishMessage("clicked") }),
+      <.button("click me", ^.onClick --> IO { println("clicked"); pubMsg.value("clicked") }),
       hand
     )
   }
@@ -65,25 +65,22 @@ object GameTable {
 
   val component = ScalaFnComponent.withHooks[Unit]
     .useState(GameTable.zero)
-    .useEffectOnMountBy { (_, state) =>
-      val gameState = state.raw._1
-      val setState = state.raw._2
+    .useState((s: String) => {println(s"UNUSED initial: $s")})
+    .useEffectOnMountBy { (_, gameStateHook, fnState) =>
+      val gameState = gameStateHook.raw._1
+      val setGameState = gameStateHook.raw._2
+      val setFnState = fnState.raw._2
 
-      //TODO in props verschieben und in parent öffnen?
       SyncIO {
         val publishMessage: String => Unit = WsClient.create[String](s"ws://${window.location.host}/api/ws/1111/nico")(
           str => {
-            setState(gameState.copy(text = gameState.text + "  " + str))
-
+            setGameState(gameState.copy(text = gameState.text + "  " + str))
           })
 
-        gameState.publishMessage = publishMessage
-          //publishMessage("syncio test")
-        //setState(gameState.copy(publishMessage=publishMessage))
-        //state.modState(_.copy(publishMessage=publishMessage))
+        setFnState(publishMessage)
       }
     }
-    .render { (props, state) =>
-      renderFn(state)
+    .render { (props, state, pubMsg) =>
+      renderFn(state, pubMsg)
     }
 }
