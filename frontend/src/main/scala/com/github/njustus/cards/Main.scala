@@ -1,7 +1,8 @@
 package com.github.njustus.cards
 
 import com.github.njustus.cards.Counter.CounterProps
-import com.github.njustus.cards.shared.events.Increment
+import com.github.njustus.cards.shared.dtos.Card
+import com.github.njustus.cards.shared.events.{CardPlayed, Increment}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.document
