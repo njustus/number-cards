@@ -7,3 +7,4 @@ sealed trait GameEvent {
 
 case object DrawCard extends GameEvent
 case class CardPlayed(card: Card) extends GameEvent
+case class NumberEvent(n: Int) extends GameEvent
