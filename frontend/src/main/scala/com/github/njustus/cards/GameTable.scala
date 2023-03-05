@@ -11,7 +11,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 object GameTable {
 
   val zero = GameState(
-    List(Card(Card.Number(5), Card.BLUE), Card(Card.Number(8), Card.BLUE), Card(Card.Number(2), Card.RED)),
+    List(Card(Card.Symbol(5), Card.BLUE), Card(Card.Symbol(8), Card.BLUE), Card(Card.Symbol(2), Card.RED)),
     List()
   )
   case class GameState(
@@ -40,7 +40,7 @@ object GameTable {
     val cards = (for {
       n <- 1 until 5
       c <- Seq(Card.BLUE, Card.RED)
-    } yield Card(Card.Number(n), c)).toList
+    } yield Card(Card.Symbol(n), c)).toList
 
 
     val gameEventHandler = (ev:GameEvent) => state.modState(GameEngine.applyEvent(ev))
