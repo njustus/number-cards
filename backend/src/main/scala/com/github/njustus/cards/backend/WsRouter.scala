@@ -1,6 +1,8 @@
 package com.github.njustus.cards.backend
 
+import cats.data.StateT
 import cats.effect._
+import cats.effect.std.{Queue, QueueSource}
 import com.comcast.ip4s._
 import com.github.njustus.cards.shared.events._
 import com.github.njustus.cards.shared.dtos._
@@ -41,10 +43,23 @@ object WsRouter extends LazyLogging {
     case Some(x) => x
   }
 
-  def routes(wsb: WebSocketBuilder2[IO]): HttpRoutes[IO] = HttpRoutes.of[IO] {
+  def readStdIn(sessionId: String, sessionStorage: SessionStorage): IO[Unit] = {
+    var console = cats.effect.std.Console[IO]
+    for {
+      _ <- console.println("enter line to send..")
+      line <- console.readLine
+      _ <- console.println(s"sending $line")
+      _ <- sessionStorage.publish(sessionId, line)
+      _ <- readStdIn(sessionId, sessionStorage)
+    } yield ()
+  }
+
+  def routes(wsb: WebSocketBuilder2[IO], sessionStorage: SessionStorage): HttpRoutes[IO] = HttpRoutes.of[IO] {
     case GET -> Root / "test" => Ok(s"test")
-    case GET -> Root / "ws" / sessionId =>
+    case GET -> Root / "ws" / sessionId / username =>
       logger.info(s"new subscriber for session: $sessionId")
+
+
       val numbers = fs2.Stream.repeatEval(IO.pure(50))
         .debounce[IO](5.seconds)
         .map(NumberEvent.apply)
@@ -53,7 +68,16 @@ object WsRouter extends LazyLogging {
       val reader = decode[GameEvent].andThen(_.map { ev =>
         println(s"received event: $ev")
       })
-      wsb.build(numbers, reader)
+
+      for {
+        //TODO somehow prevent timeouts with ping/pong?
+        queue <- Queue.unbounded[IO, String]
+        _ <- sessionStorage.create(sessionId)(username, queue)
+        numbers = fs2.Stream.fromQueueUnterminated[IO, String](queue, 1024)
+          .through(encode[String])
+        ws <- wsb.build(numbers, reader)
+        _ <- readStdIn(sessionId, sessionStorage).start
+      } yield ws
   }
 
 }
