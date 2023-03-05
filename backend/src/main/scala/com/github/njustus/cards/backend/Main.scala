@@ -10,6 +10,7 @@ import org.http4s.implicits._
 import org.http4s.ember.server._
 import org.http4s.server.Router
 import org.http4s.server.websocket.WebSocketBuilder2
+import org.http4s.server.staticcontent._
 
 import scala.collection.mutable
 object Main extends IOApp {
@@ -21,8 +22,12 @@ object Main extends IOApp {
 
   def router(wsb: WebSocketBuilder2[IO]): HttpApp[IO] = {
     val state = new SessionStorage(mutable.Map.empty)
+    val fileConfig = FileService.Config[IO]("/Users/nico/Documents/Eclipse/number-cards/frontend")
 
-    Router("/api" -> WsRouter.routes(wsb, state)).orNotFound
+    Router(
+      "/api" -> WsRouter.routes(wsb, state),
+      "" -> fileService(fileConfig)
+    ).orNotFound
   }
 
   def run(args: List[String]): IO[ExitCode] =

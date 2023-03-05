@@ -54,6 +54,15 @@ object WsRouter extends LazyLogging {
     } yield ()
   }
 
+  def infiniteNumbers(sessionId: String, sessionStorage: SessionStorage, n:Int = 20): IO[Unit] = {
+    for {
+      next <- IO.pure(n+5)
+      _ <- IO.sleep(2.seconds)
+      _ <- sessionStorage.publish(sessionId, "number:"+next)
+      _ <- infiniteNumbers(sessionId, sessionStorage, next)
+    } yield ()
+  }
+
   def routes(wsb: WebSocketBuilder2[IO], sessionStorage: SessionStorage): HttpRoutes[IO] = HttpRoutes.of[IO] {
     case GET -> Root / "test" => Ok(s"test")
     case GET -> Root / "ws" / sessionId / username =>
@@ -65,7 +74,7 @@ object WsRouter extends LazyLogging {
         .map(NumberEvent.apply)
         .through(encode[GameEvent])
 
-      val reader = decode[GameEvent].andThen(_.map { ev =>
+      val reader = decode[String].andThen(_.map { ev =>
         println(s"received event: $ev")
       })
 
@@ -76,7 +85,8 @@ object WsRouter extends LazyLogging {
         numbers = fs2.Stream.fromQueueUnterminated[IO, String](queue, 1024)
           .through(encode[String])
         ws <- wsb.build(numbers, reader)
-        _ <- readStdIn(sessionId, sessionStorage).start
+        //_ <- readStdIn(sessionId, sessionStorage).start
+        _ <- infiniteNumbers(sessionId, sessionStorage).start
       } yield ws
   }
 
