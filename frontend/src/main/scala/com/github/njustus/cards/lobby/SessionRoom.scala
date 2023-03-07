@@ -1,10 +1,10 @@
 package com.github.njustus.cards.lobby
 
-import cats.effect.SyncIO
+import cats.effect.{IO, SyncIO}
 import com.github.njustus.cards.WsClient
 import com.github.njustus.cards.lobby.SessionSelector.SelectedSession
 import com.github.njustus.cards.shared.dtos.Player
-import com.github.njustus.cards.shared.events.GameEvent
+import com.github.njustus.cards.shared.events.{GameEvent, StartGame}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import monocle.Focus
@@ -31,29 +31,31 @@ object SessionRoom {
 
   private def renderFn(props: Props,
                        state: Hooks.UseState[State],
-                       publishMessage: GameEvent => Unit): VdomNode = {
+                       publishMessage: GameEvent => IO[Unit]): VdomNode = {
     <.div(
       <.h6("Joined Players"),
       <.p(state.value.players.map(_.name).mkString(", ")),
-      <.button("Start game")
+      <.button(
+        "Start game",
+        ^.onClick --> publishMessage(StartGame)
+      ),
+      <.div(s"events: ${state.value.receivedMessages}")
     )
   }
 
   val component = ScalaFnComponent.withHooks[Props]
     .useStateBy(_ => State.zero)
-    .useState((s: GameEvent) => {console.warn(s"UNUSED publisher: $s")})
+    .useState((s: GameEvent) => IO {console.warn(s"UNUSED publisher: $s")})
     .useEffectOnMountBy { (props, roomStateHook, fnStateHook) =>
       SyncIO {
         val setFnState = fnStateHook.raw._2
 
         val publishMessage: GameEvent => Unit = WsClient.create[GameEvent, GameEvent](props.wsUrl(window.location)) { ev =>
-          println(s"receiving message: ${roomStateHook.value}")
-
           val newState = SessionEngine.applyEvent(ev)
           roomStateHook.modState(newState).unsafeRunSync()
         }
 
-        setFnState(publishMessage)
+        setFnState((ev: GameEvent) => IO { publishMessage(ev) })
       }
     }
     .render { (props, stateHook, fnHook) =>
