@@ -10,14 +10,11 @@ import com.typesafe.scalalogging.LazyLogging
 import fs2.Pipe
 import io.circe._
 import io.circe.parser
-import org.http4s.{HttpApp, HttpRoutes}
+import org.http4s.{HttpRoutes}
 import org.http4s.dsl.io._
-import org.http4s.implicits._
-import org.http4s.ember.server._
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.websocket.WebSocketFrame
 
-import scala.concurrent.duration._
 object WsRouter extends LazyLogging {
 
   private def encode[A:Encoder]: Pipe[IO, A, WebSocketFrame] = _.map { obj =>
@@ -48,31 +45,10 @@ object WsRouter extends LazyLogging {
     case GET -> Root / "ws" / sessionId / username =>
       logger.info(s"new subscriber for session: $sessionId")
 
-
-      val numbers = fs2.Stream.repeatEval(IO.pure(50))
-        .debounce[IO](5.seconds)
-        .map(NumberEvent.apply)
-        .through(encode[GameEvent])
-
-      val reader = decode[String].andThen(_.map { ev =>
-        println(s"received event: $ev")
-      })
-
       val broadcaster = decode[GameEvent].andThen(_.evalMap { ev =>
         logger.debug(s"received event: $ev")
         sessionStorage.publish(sessionId, ev)
       })
-
-//      val ignore = for {
-//        //TODO somehow prevent timeouts with ping/pong?
-//        queue <- Queue.unbounded[IO, String]
-//        _ <- sessionStorage.create(sessionId)(username, queue)
-//        numbers = fs2.Stream.fromQueueUnterminated[IO, String](queue, 1024)
-//          .through(encode[String])
-//        ws <- wsb.build(numbers, reader)
-//        //_ <- readStdIn(sessionId, sessionStorage).start
-//        _ <- infiniteNumbers(sessionId, sessionStorage).start
-//      } yield ws
 
       for {
         queue <- Queue.unbounded[IO, GameEvent]
