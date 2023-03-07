@@ -14,9 +14,12 @@ object Lobby {
     state.value.sessionSelected match {
       case Some(lobby) =>
         //TODO render empty table with WebSocket, wait for others join, start game
+        val head = <.div(<.p(s"SessionId: ${lobby.sessionId} - Username: ${lobby.sessionId}"))
+        val content = SessionRoom.component(SessionRoom.Props(lobby))
         <.div(
-      s"selected: $lobby"
-    )
+          head,
+          content
+        )
       case None =>
         SessionSelector.component(SessionSelector.Props(onLobbySelected))
     }

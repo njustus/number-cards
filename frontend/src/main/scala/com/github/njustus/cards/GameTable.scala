@@ -46,7 +46,6 @@ object GameTable {
       c <- Seq(Card.BLUE, Card.RED)
     } yield Card(Card.Symbol(n), c)).toList
 
-
     val gameEventHandler = (ev:GameEvent) => state.modState(GameEngine.applyEvent(ev))
     val hand = HandComponent.component(cards, gameEventHandler)
 
@@ -72,12 +71,12 @@ object GameTable {
       val setFnState = fnState.raw._2
 
       SyncIO {
-        val publishMessage: String => Unit = WsClient.create[String](s"ws://${window.location.host}/api/ws/1111/nico")(
-          str => {
-            setGameState(gameState.copy(text = gameState.text + "  " + str))
-          })
-
-        setFnState(publishMessage)
+//        val publishMessage: String => Unit = WsClient.create[String](s"ws://${window.location.host}/api/ws/1111/nico")(
+//          str => {
+//            setGameState(gameState.copy(text = gameState.text + "  " + str))
+//          })
+//
+//        setFnState(publishMessage)
       }
     }
     .render { (props, state, pubMsg) =>
