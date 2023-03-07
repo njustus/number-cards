@@ -8,19 +8,19 @@ import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.Event
 import cats.effect.{IO, SyncIO}
 import cats.implicits._
-object LobbySelector {
-  case class SelectedLobby(sessionId:String, username: String)
-  case class Props(onLobbySelected: SelectedLobby => IO[Unit])
+object SessionSelector {
+  case class SelectedSession(sessionId:String, username: String)
+  case class Props(onSessionSelected: SelectedSession => IO[Unit])
 
   case class State(sessionIdInput:String="",
                    usernameInput:String="") {
-    def selectedLobby = SelectedLobby(sessionIdInput, usernameInput)
-    def randomLobby =
+    def selectedSession: SelectedSession = SelectedSession(sessionIdInput, usernameInput)
+    def randomSession: IO[SelectedSession] =
       for {
         random <- Random.scalaUtilRandom[IO]
         randomNumbers = List.fill(5)(random.nextIntBounded(10))
         randomId <- Traverse[List].sequence(randomNumbers)
-      } yield SelectedLobby(randomId.mkString, usernameInput)
+      } yield SelectedSession(randomId.mkString, usernameInput)
   }
 
   private def renderFn(props: Props, state: Hooks.UseState[State]): VdomNode = {
@@ -36,11 +36,11 @@ object LobbySelector {
 
     def onJoinClicked(ev:ReactEvent) = IO {
       ev.preventDefault()
-    } >> props.onLobbySelected(state.value.selectedLobby)
+    } >> props.onSessionSelected(state.value.selectedSession)
 
     def onNewLobbyClicked(ev:ReactEvent) = {
       ev.preventDefault()
-      state.value.randomLobby.flatMap(props.onLobbySelected)
+      state.value.randomSession.flatMap(props.onSessionSelected)
     }
 
     <.form(
