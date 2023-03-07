@@ -43,26 +43,6 @@ object WsRouter extends LazyLogging {
     case Some(x) => x
   }
 
-  def readStdIn(sessionId: String, sessionStorage: SessionStorage): IO[Unit] = {
-    var console = cats.effect.std.Console[IO]
-    for {
-      _ <- console.println("enter line to send..")
-      line <- console.readLine
-      _ <- console.println(s"sending $line")
-      _ <- sessionStorage.publish(sessionId, line)
-      _ <- readStdIn(sessionId, sessionStorage)
-    } yield ()
-  }
-
-  def infiniteNumbers(sessionId: String, sessionStorage: SessionStorage, n:Int = 20): IO[Unit] = {
-    for {
-      next <- IO.pure(n+5)
-      _ <- IO.sleep(2.seconds)
-      _ <- sessionStorage.publish(sessionId, "number:"+next)
-      _ <- infiniteNumbers(sessionId, sessionStorage, next)
-    } yield ()
-  }
-
   def routes(wsb: WebSocketBuilder2[IO], sessionStorage: SessionStorage): HttpRoutes[IO] = HttpRoutes.of[IO] {
     case GET -> Root / "test" => Ok(s"test")
     case GET -> Root / "ws" / sessionId / username =>
@@ -78,15 +58,29 @@ object WsRouter extends LazyLogging {
         println(s"received event: $ev")
       })
 
+      val broadcaster = decode[GameEvent].andThen(_.evalMap { ev =>
+        logger.debug(s"received event: $ev")
+        sessionStorage.publish(sessionId, ev)
+      })
+
+//      val ignore = for {
+//        //TODO somehow prevent timeouts with ping/pong?
+//        queue <- Queue.unbounded[IO, String]
+//        _ <- sessionStorage.create(sessionId)(username, queue)
+//        numbers = fs2.Stream.fromQueueUnterminated[IO, String](queue, 1024)
+//          .through(encode[String])
+//        ws <- wsb.build(numbers, reader)
+//        //_ <- readStdIn(sessionId, sessionStorage).start
+//        _ <- infiniteNumbers(sessionId, sessionStorage).start
+//      } yield ws
+
       for {
-        //TODO somehow prevent timeouts with ping/pong?
-        queue <- Queue.unbounded[IO, String]
+        queue <- Queue.unbounded[IO, GameEvent]
         _ <- sessionStorage.create(sessionId)(username, queue)
-        numbers = fs2.Stream.fromQueueUnterminated[IO, String](queue, 1024)
-          .through(encode[String])
-        ws <- wsb.build(numbers, reader)
-        //_ <- readStdIn(sessionId, sessionStorage).start
-        _ <- infiniteNumbers(sessionId, sessionStorage).start
+        eventsOutput = fs2.Stream.fromQueueUnterminated[IO, GameEvent](queue, 1024)
+          .through(encode[GameEvent])
+        ws <- wsb.build(eventsOutput, broadcaster)
+        _ <- sessionStorage.publish(sessionId, PlayerJoined(Player(username)))
       } yield ws
   }
 
