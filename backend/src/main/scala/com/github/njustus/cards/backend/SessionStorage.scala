@@ -15,7 +15,7 @@ class SessionStorage(sessions: mutable.Map[String, Session]) extends LazyLogging
       case None =>
         IO.delay {
           logger.info(s"create new session $id")
-          Session(id, Map(user -> queue))
+          Session(id, List.empty, Map(user -> queue))
         }
       case Some(session) =>
         IO.delay {
@@ -25,10 +25,15 @@ class SessionStorage(sessions: mutable.Map[String, Session]) extends LazyLogging
         }
     }
 
-    updateIO.map { session =>
-      sessions.update(id, session)
-      logger.info(s"updated sessions: $sessions")
-    }
+    for {
+      session <- updateIO
+      _ <- IO {
+        sessions.update(id, session)
+        logger.info(s"updated sessions: $sessions")
+      }
+      msgToRePublish = session.receivedMessagesStack.reverse
+      _ <- msgToRePublish.traverse_(queue.offer)
+    } yield ()
   }
 
   def publish(id: String, msg: GameEvent): IO[Unit] = {
@@ -36,9 +41,10 @@ class SessionStorage(sessions: mutable.Map[String, Session]) extends LazyLogging
       queues.traverse_ { queue => queue.offer(msg) }
 
     for {
-      session <- this.sessions.get(id).map(IO.pure).getOrElse(IO.never)
+      session <- sessions.get(id).map(IO.pure).getOrElse(IO.never)
       queues = session.users.values.toList
       _ <- publishAll(queues)
+      _ <- IO { sessions.update(id, session.addMessage(msg)) }
     } yield ()
   }
 }

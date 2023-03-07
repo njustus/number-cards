@@ -33,10 +33,9 @@ object SessionRoom {
                        state: Hooks.UseState[State],
                        publishMessage: GameEvent => Unit): VdomNode = {
     <.div(
-      s"""
-         |players: ${state.value.players}
-         |messages: ${state.value.receivedMessages}
-         |""".stripMargin
+      <.h6("Joined Players"),
+      <.p(state.value.players.map(_.name).mkString(", ")),
+      <.button("Start game")
     )
   }
 
