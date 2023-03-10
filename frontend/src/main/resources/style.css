@@ -14,6 +14,14 @@
   background-color: red;
 }
 
+.card-yellow {
+  background-color: yellow;
+}
+
+.card-green {
+  background-color: green;
+}
+
 .closed-card {
   background-color: lightgray;
 }

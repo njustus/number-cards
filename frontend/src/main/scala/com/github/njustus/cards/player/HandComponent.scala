@@ -9,7 +9,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 
 object HandComponent {
   case class Props(cards: List[Card],
-                  gameEventHandler: GameEvent => SyncIO[Unit])
+                  gameEventHandler: GameEvent => IO[Unit])
 
   private def renderFn(props: Props): VdomNode = {
     println("render hand")
@@ -29,5 +29,5 @@ object HandComponent {
     .render(renderFn)
 
   def component(cards: List[Card],
-                gameEventHandler: GameEvent => SyncIO[Unit]) = comp(Props(cards, gameEventHandler))
+                gameEventHandler: GameEvent => IO[Unit]) = comp(Props(cards, gameEventHandler))
 }
