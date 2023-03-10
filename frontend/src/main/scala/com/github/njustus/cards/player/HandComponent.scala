@@ -12,7 +12,6 @@ object HandComponent {
                   gameEventHandler: GameEvent => IO[Unit])
 
   private def renderFn(props: Props): VdomNode = {
-    println("render hand")
     val cards: List[VdomNode] = props.cards.map { card =>
       <.div(
         CardComponent.component(card),

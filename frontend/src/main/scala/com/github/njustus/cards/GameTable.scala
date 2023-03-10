@@ -15,9 +15,19 @@ object GameTable {
                     gameState: GameState,
                   publishMessage: GameEvent => IO[Unit]) {
     def playersHand = gameState.cardsPerPlayer.get(currentPlayer.name)
+
+    def displayOtherPlayers: String = {
+      val players = for {
+        (username, cards) <- gameState.cardsPerPlayer
+        if username != currentPlayer.name
+        cardCount = cards.size
+      } yield s"$username: x$cardCount"
+
+      players.mkString(" - ")
+    }
   }
 
-  case class GameState(
+    case class GameState(
                   closedCards: List[Card],
                   playedCards: List[Card],
                   cardsPerPlayer: Map[String, List[Card]]
@@ -48,12 +58,13 @@ object GameTable {
       props.publishMessage)
 
     <.div(
+      <.p(s"Other Players: ${props.displayOtherPlayers}"),
       <.div(
         renderClosedCards(props),
         renderOpenCard(state),
         ^.className:="game-table-center"
       ),
-      <.button("click me", ^.onClick --> IO { println("clicked UNHANDLED");  }),
+      <.p(s"Player: ${props.currentPlayer.name}"),
       hand
     )
   }
