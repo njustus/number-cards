@@ -10,6 +10,8 @@ import com.typesafe.scalalogging.LazyLogging
 import scala.collection.mutable
 
 class SessionStorage(sessions: mutable.Map[String, Session]) extends LazyLogging {
+  //TODO drop closed connections
+  // cleanup sessions without connections
   def create(id: String)(user: String, queue: Queue[IO, GameEvent]): IO[Unit] = {
     val updateIO = sessions.get(id) match {
       case None =>
@@ -47,4 +49,8 @@ class SessionStorage(sessions: mutable.Map[String, Session]) extends LazyLogging
       _ <- IO { sessions.update(id, session.addMessage(msg)) }
     } yield ()
   }
+}
+
+object SessionStorage {
+  def empty: SessionStorage = new SessionStorage(mutable.Map.empty)
 }

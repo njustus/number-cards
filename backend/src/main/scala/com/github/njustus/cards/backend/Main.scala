@@ -8,12 +8,11 @@ import org.http4s.ember.server._
 import org.http4s.server.Router
 import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.server.staticcontent._
-
-import scala.collection.mutable
+import scala.concurrent.duration._
 object Main extends IOApp {
 
   def router(wsb: WebSocketBuilder2[IO]): HttpApp[IO] = {
-    val state = new SessionStorage(mutable.Map.empty)
+    val state = SessionStorage.empty
     val fileConfig = FileService.Config[IO]("/Users/nico/Documents/Eclipse/number-cards/frontend")
 
     Router(
@@ -28,6 +27,7 @@ object Main extends IOApp {
       .withHost(ipv4"0.0.0.0")
       .withPort(port"8080")
       .withHttpWebSocketApp(wsb => router(wsb))
+      .withIdleTimeout(10.minutes)
       .build
       .use(_ => IO.never)
       .as(ExitCode.Success)
