@@ -6,7 +6,7 @@ import com.github.njustus.cards.shared.events._
 import org.scalajs.dom.console
 
 object GameEngine {
-  def applyEvent(currentPlayer: Player, event: GameEvent)(state: GameState): GameState = event match {
+  def applyEvent(currentPlayer: Player, event: GameEventEnvelope)(state: GameState): GameState = event.payload match {
     case DrawCard if state.closedCards.nonEmpty =>
       //TODO add to hand if event from currentPlayer
       val (topCard :: tail) = state.closedCards

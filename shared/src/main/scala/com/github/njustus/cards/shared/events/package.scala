@@ -3,7 +3,7 @@ package com.github.njustus.cards.shared
 import io.circe._
 import io.circe.generic.semiauto._
 
-import java.time.LocalDateTime
+import java.time.{Instant}
 package object events extends CirceConfig {
   import events._
 
@@ -13,6 +13,6 @@ package object events extends CirceConfig {
   type GameEventEnvelope = EventEnvelope[GameEvent]
 
   def gameEventEnvelope(sender:String, payload:GameEvent): EventEnvelope[GameEvent] =
-    EventEnvelope(LocalDateTime.now,sender, payload)
+    EventEnvelope(Instant.now,sender, payload)
 
 }

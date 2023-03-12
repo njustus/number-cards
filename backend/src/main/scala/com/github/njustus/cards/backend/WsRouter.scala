@@ -45,18 +45,18 @@ object WsRouter extends LazyLogging {
     case GET -> Root / "ws" / sessionId / username =>
       logger.info(s"new subscriber for session: $sessionId: $username")
 
-      val broadcaster = decode[GameEvent].andThen(_.evalMap { ev =>
+      val broadcaster = decode[GameEventEnvelope].andThen(_.evalMap { ev =>
         logger.debug(s"sessionId: $sessionId, username: $username - received event: $ev")
         sessionStorage.publish(sessionId, ev)
       })
 
       for {
-        queue <- Queue.unbounded[IO, GameEvent]
+        queue <- Queue.unbounded[IO, GameEventEnvelope]
         _ <- sessionStorage.create(sessionId)(username, queue)
-        eventsOutput = fs2.Stream.fromQueueUnterminated[IO, GameEvent](queue, 1024)
-          .through(encode[GameEvent])
+        eventsOutput = fs2.Stream.fromQueueUnterminated[IO, GameEventEnvelope](queue, 1024)
+          .through(encode[GameEventEnvelope])
         ws <- wsb.build(eventsOutput, broadcaster)
-        _ <- sessionStorage.publish(sessionId, PlayerJoined(Player(username)))
+        _ <- sessionStorage.publish(sessionId, gameEventEnvelope(username, PlayerJoined(Player(username))))
       } yield ws
   }
 

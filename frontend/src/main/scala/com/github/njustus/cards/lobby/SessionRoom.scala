@@ -5,7 +5,7 @@ import com.github.njustus.cards.GameTable.GameState
 import com.github.njustus.cards.{GameTable, WsClient}
 import com.github.njustus.cards.lobby.SessionSelector.SelectedSession
 import com.github.njustus.cards.shared.dtos.Player
-import com.github.njustus.cards.shared.events.{GameEvent, StartGame}
+import com.github.njustus.cards.shared.events.{GameEvent, GameEventEnvelope, StartGame, gameEventEnvelope}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import monocle.Focus
@@ -19,7 +19,7 @@ object SessionRoom {
   }
 
   case class State(players: List[Player],
-                  receivedMessages: List[GameEvent],
+                  receivedMessages: List[GameEventEnvelope],
                    gameState: Option[GameState])
 
   case object State {
@@ -28,7 +28,7 @@ object SessionRoom {
     def zero = State(List.empty, List.empty, None)
 
     def fromProps(props:Props) = addPlayer(Player(props.session.username))(zero)
-    def addMessage(msg: GameEvent) =
+    def addMessage(msg: GameEventEnvelope) =
       Focus[State](_.receivedMessages).modify(xs => msg::xs)
 
     def addPlayer(player:Player) =
@@ -60,20 +60,21 @@ object SessionRoom {
 
   val component = ScalaFnComponent.withHooks[Props]
     .useStateBy(_ => State.zero)
-    .useState((s: GameEvent) => IO {console.warn(s"UNUSED publisher: $s")})
+    .useState((s: GameEventEnvelope) => IO {console.warn(s"UNUSED publisher: $s")})
     .useEffectOnMountBy { (props, roomStateHook, fnStateHook) =>
       SyncIO {
         val setFnState = fnStateHook.raw._2
 
-        val publishMessage: GameEvent => Unit = WsClient.create[GameEvent, GameEvent](props.wsUrl(window.location)) { ev =>
+        val publishMessage: GameEventEnvelope => Unit = WsClient.create[GameEventEnvelope, GameEventEnvelope](props.wsUrl(window.location)) { ev =>
           val newState = SessionEngine.applyEvent(props.currentPlayer, ev)
           roomStateHook.modState(newState).unsafeRunSync()
         }
 
-        setFnState((ev: GameEvent) => IO { publishMessage(ev) })
+        setFnState((ev: GameEventEnvelope) => IO { publishMessage(ev) })
       }
     }
     .render { (props, stateHook, fnHook) =>
-      renderFn(props, stateHook, fnHook.value)
+      val publishMessage = fnHook.value.compose((gameEventEnvelope _).curried(props.currentPlayer.name))
+      renderFn(props, stateHook, publishMessage)
     }
 }

@@ -3,7 +3,7 @@ package com.github.njustus.cards.player
 import cats.effect.{IO, SyncIO}
 import com.github.njustus.cards.CardComponent
 import com.github.njustus.cards.shared.dtos.Card
-import com.github.njustus.cards.shared.events.{CardPlayed, GameEvent}
+import com.github.njustus.cards.shared.events.{CardPlayed, GameEvent, GameEventEnvelope}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 

@@ -4,7 +4,7 @@ import cats.effect.{IO, SyncIO}
 import com.github.njustus.cards.CardComponent.Props
 import com.github.njustus.cards.player.HandComponent
 import com.github.njustus.cards.shared.dtos.{Card, Player}
-import com.github.njustus.cards.shared.events.{CardPlayed, DrawCard, GameEvent}
+import com.github.njustus.cards.shared.events.{CardPlayed, DrawCard, GameEvent, GameEventEnvelope}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.window

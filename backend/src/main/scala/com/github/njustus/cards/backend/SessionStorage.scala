@@ -12,7 +12,7 @@ import scala.collection.mutable
 class SessionStorage(sessions: mutable.Map[String, Session]) extends LazyLogging {
   //TODO drop closed connections
   // cleanup sessions without connections
-  def create(id: String)(user: String, queue: Queue[IO, GameEvent]): IO[Unit] = {
+  def create(id: String)(user: String, queue: Queue[IO, GameEventEnvelope]): IO[Unit] = {
     val updateIO = sessions.get(id) match {
       case None =>
         IO.delay {
@@ -38,8 +38,8 @@ class SessionStorage(sessions: mutable.Map[String, Session]) extends LazyLogging
     } yield ()
   }
 
-  def publish(id: String, msg: GameEvent): IO[Unit] = {
-    def publishAll(queues: List[Queue[IO, GameEvent]]) =
+  def publish(id: String, msg: GameEventEnvelope): IO[Unit] = {
+    def publishAll(queues: List[Queue[IO, GameEventEnvelope]]) =
       queues.traverse_ { queue => queue.offer(msg) }
 
     for {
