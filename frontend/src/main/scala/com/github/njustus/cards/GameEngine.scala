@@ -2,6 +2,7 @@ package com.github.njustus.cards
 
 import com.github.njustus.cards.GameTable.GameState
 import com.github.njustus.cards.shared.events._
+import org.scalajs.dom.console
 
 object GameEngine {
   def applyEvent(event: GameEvent)(state: GameState): GameState = event match {
@@ -16,6 +17,8 @@ object GameEngine {
       //TODO check for incorrect moves
       //TODO remove from hand
       state.copy(playedCards = card :: state.playedCards)
-    case ev => throw new IllegalArgumentException(s"Don't know how to handle $ev")
+    case ev =>
+      console.warn(s"Unknown event: $ev")
+      state
   }
 }

@@ -1,6 +1,6 @@
 package com.github.njustus.cards.lobby
 
-import com.github.njustus.cards.GameTable
+import com.github.njustus.cards.{GameEngine, GameTable}
 import com.github.njustus.cards.shared.events.{GameEvent, GameStarted, PlayerJoined}
 import org.scalajs.dom.console
 object SessionEngine {
@@ -12,8 +12,14 @@ object SessionEngine {
       val gs = GameTable.GameState(availableCards.tail, List(availableCards.head), cardsPerPlayer)
       SessionRoom.State.setGameState(gs)
     case ev =>
-      console.warn(s"Unknown event: $ev")
-      identity[SessionRoom.State] _
+      (state: SessionRoom.State) => state match {
+        case SessionRoom.State(_,_,Some(gameState)) =>
+          val newGs = GameEngine.applyEvent(ev)(gameState)
+          SessionRoom.State.setGameState(newGs)(state)
+        case _ =>
+          console.warn(s"Unknown event: $ev")
+          state
+      }
     }
 
     eventUpdate.andThen(SessionRoom.State.addMessage(event))

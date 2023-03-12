@@ -19,13 +19,13 @@ object WsRouter extends LazyLogging {
 
   private def encode[A:Encoder]: Pipe[IO, A, WebSocketFrame] = _.map { obj =>
     val json = implicitly[Encoder[A]].apply(obj).toString()
-    logger.debug(s"encoded $json")
+    logger.trace(s"encoded $json")
     WebSocketFrame.Text(json)
   }
 
   private def decode[A:Decoder]: Pipe[IO, WebSocketFrame, A] = _.map {
     case WebSocketFrame.Text(txt, bool) =>
-      logger.debug(s"trying to decode $txt")
+      logger.trace(s"trying to decode $txt")
       parser.decode[A](txt) match {
         case Left(err) =>
           logger.warn(s"couldn't deserialize $txt. Errors: $err")
@@ -43,10 +43,10 @@ object WsRouter extends LazyLogging {
   def routes(wsb: WebSocketBuilder2[IO], sessionStorage: SessionStorage): HttpRoutes[IO] = HttpRoutes.of[IO] {
     case GET -> Root / "test" => Ok(s"test")
     case GET -> Root / "ws" / sessionId / username =>
-      logger.info(s"new subscriber for session: $sessionId")
+      logger.info(s"new subscriber for session: $sessionId: $username")
 
       val broadcaster = decode[GameEvent].andThen(_.evalMap { ev =>
-        logger.debug(s"received event: $ev")
+        logger.debug(s"sessionId: $sessionId, username: $username - received event: $ev")
         sessionStorage.publish(sessionId, ev)
       })
 
