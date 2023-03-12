@@ -66,7 +66,7 @@ object SessionRoom {
         val setFnState = fnStateHook.raw._2
 
         val publishMessage: GameEvent => Unit = WsClient.create[GameEvent, GameEvent](props.wsUrl(window.location)) { ev =>
-          val newState = SessionEngine.applyEvent(ev)
+          val newState = SessionEngine.applyEvent(props.currentPlayer, ev)
           roomStateHook.modState(newState).unsafeRunSync()
         }
 
