@@ -17,6 +17,8 @@ lazy val shared = (crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pur
       "io.circe" %%% "circe-parser" % circeVersion,
       "dev.optics" %%% "monocle-core" % "3.2.0",
       "dev.optics" %%% "monocle-macro" % "3.2.0",
+      //support for java.time instances in Scala.JS
+      "io.github.cquiroz" %%% "scala-java-time" % "2.5.0"
     )
   )
  .jvmSettings()
