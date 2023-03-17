@@ -6,7 +6,6 @@ import scala.util.Random
 
 sealed trait GameEvent {
 }
-//TODO group in session, game events for multiple engines to handle
 case class PlayerJoined(player: Player) extends GameEvent
 case object StartGame extends GameEvent
 case class GameStarted(availableCards: List[Card],
