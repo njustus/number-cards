@@ -12,6 +12,7 @@ object GameEngine {
 
       state.copy(
         closedCards = tail,
+        currentlyPlaying = state.nextPlayer,
         cardsPerPlayer = updatePlayer(state, event.sender) { cards =>
           topCard::cards
         }
@@ -20,6 +21,7 @@ object GameEngine {
       //TODO check for incorrect moves
       state.copy(
         playedCards = card :: state.playedCards,
+        currentlyPlaying = state.nextPlayer,
         cardsPerPlayer = updatePlayer(state, event.sender) { cards =>
           cards.filter(card2 => card2 != card)
         }

@@ -9,16 +9,20 @@ import japgolly.scalajs.react.vdom.html_<^._
 
 object HandComponent {
   case class Props(cards: List[Card],
-                  gameEventHandler: GameEvent => IO[Unit])
+                  gameEventHandler: GameEvent => IO[Unit],
+                  disabled:Boolean)
 
   private def renderFn(props: Props): VdomNode = {
     val cards: List[VdomNode] = props.cards.map { card =>
-      <.div(
-        CardComponent.component(card),
-        ^.onClick --> props.gameEventHandler(CardPlayed(card)).to[IO]
-      )
+      if (props.disabled)
+        <.div(CardComponent.component(card))
+      else
+        <.div(
+          CardComponent.component(card),
+          ^.onClick --> props.gameEventHandler(CardPlayed(card)).to[IO]
+        )
     }
-    <.div(
+    <.div( //TODO highlight if disabled
       ^.className:="player-hand")(
       cards:_*
     )
@@ -28,5 +32,6 @@ object HandComponent {
     .render(renderFn)
 
   def component(cards: List[Card],
-                gameEventHandler: GameEvent => IO[Unit]) = comp(Props(cards, gameEventHandler))
+                gameEventHandler: GameEvent => IO[Unit],
+                disabled:Boolean=false) = comp(Props(cards, gameEventHandler, disabled))
 }
