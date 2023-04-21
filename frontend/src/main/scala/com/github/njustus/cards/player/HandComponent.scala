@@ -15,9 +15,9 @@ object HandComponent {
   private def renderFn(props: Props): VdomNode = {
     val cards: List[VdomNode] = props.cards.map { card =>
       if (props.disabled)
-        <.div(CardComponent.component(card))
+        <.div(^.className:="card-wrapper", CardComponent.component(card))
       else
-        <.div(
+        <.div(^.className:="card-wrapper active",
           CardComponent.component(card),
           ^.onClick --> props.gameEventHandler(CardPlayed(card)).to[IO]
         )

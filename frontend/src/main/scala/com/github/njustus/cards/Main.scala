@@ -9,9 +9,6 @@ import java.time.{Instant, LocalDateTime, ZoneOffset}
 object Main {
 
   def main(args: Array[String]): Unit = {
-    println("main loaded")
-    println(s"date ${Instant.now()}")
-
     val root = document.getElementById("parent-root")
     <.div(
       Lobby.component(),

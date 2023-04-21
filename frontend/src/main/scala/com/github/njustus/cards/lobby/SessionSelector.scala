@@ -43,27 +43,35 @@ object SessionSelector {
       state.value.randomSession.flatMap(props.onSessionSelected)
     }
 
+    <.div(^.className:="section",
     <.form(
-      <.div(
-        <.label("Username"),
-        <.input(
+      <.div(^.className:="columns",
+        <.label(^.className:="column is-one-quarter", "Username"),
+        <.input(^.className:="column input",
           ^.value := state.value.usernameInput,
           ^.onChange ==> usernameChange)
       ),
-      <.div(
-        <.label("SessionId"),
-        <.input(
+      <.div(^.className:="columns",
+        <.label(^.className:="column is-one-quarter", "SessionId"),
+        <.input(^.className:="column input",
           ^.value := state.value.sessionIdInput,
           ^.onChange ==> sessionIdChange)
       ),
-      <.button(
+      <.div(^.className:="columns",
+        <.div(^.className:="column is-one-quarter"),
+          <.div(^.className:="buttons",
+            <.button(^.className:="button is-primary",
         "Join",
         ^.onClick ==> onJoinClicked
       ),
-      <.button(
+      <.button(^.className:="button is-info",
         "New Lobby",
         ^.onClick ==> onNewLobbyClicked
       )
+          )
+        )
+      )
+
     )
   }
 

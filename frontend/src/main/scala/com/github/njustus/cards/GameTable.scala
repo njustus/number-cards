@@ -18,6 +18,7 @@ object GameTable {
 
     def isCurrentsPlayerTurn: Boolean = currentPlayer == gameState.currentlyPlaying
 
+    def allPlayers: List[Player] = gameState.cardsPerPlayer.keys.map(Player).toList
     def displayOtherPlayers: String = {
       val players = for {
         (username, cards) <- gameState.cardsPerPlayer
@@ -70,23 +71,31 @@ object GameTable {
   def renderOpenCard(value: GameState): VdomNode =
     CardComponent.component(value.openCard)
 
-  private def renderFn(props: Props): VdomNode = {
-    val state = props.gameState
+  def renderPlayerState(props: Props): VdomNode = {
+    def playerClassName(p:Player) = if(p == props.gameState.currentlyPlaying) "has-text-weight-bold" else ""
 
+    <.div(
+      <.h4(^.className:="is-size-4", "Players"),
+      <.ol(
+        (props.gameState.players.map(p => <.li(^.className:=playerClassName(p), p.name)) :+
+        (^.className:="column")
+        ):_*
+      )
+    )
+  }
+
+  private def renderFn(props: Props): VdomNode = {
     val hand = HandComponent.component(
       props.playersHand.getOrElse(List.empty),
       props.publishMessage,
       !props.isCurrentsPlayerTurn)
 
-    <.div(
-      <.p(s"Other Players: ${props.displayOtherPlayers}"),
-      <.p(s"Currently playing: ${props.currentPlayer.name}"),
-      <.div(
-        renderClosedCards(props),
-        renderOpenCard(props.gameState),
-        ^.className:="game-table-center"
+    <.div(^.className:="section",
+      <.div(^.className:="columns",
+          <.div(^.className:="column", renderClosedCards(props)),
+          <.div(^.className:="column", renderOpenCard(props.gameState)),
+        <.div(^.className:="column", renderPlayerState(props))
       ),
-      <.p(s"Player: ${props.currentPlayer.name}"),
       hand
     )
   }

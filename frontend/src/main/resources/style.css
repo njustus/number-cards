@@ -1,3 +1,11 @@
+.card-wrapper.active {
+  cursor: pointer;
+}
+
+.active:hover {
+  transform: translate(0, -20px);
+}
+
 .card {
   width: 150px;
   height: 225px;

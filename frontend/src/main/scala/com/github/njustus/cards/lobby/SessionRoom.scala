@@ -47,13 +47,18 @@ object SessionRoom {
       case Some(gs) => GameTable.component(GameTable.Props(props.currentPlayer, gs, publishMessage))
       case None =>
         <.div(
-          <.h6("Joined Players"),
-          <.p(state.value.players.map(_.name).mkString(", ")),
-          <.button(
-            "Start game",
-            ^.onClick --> startGame
+          <.div(^.className := "section",
+            <.h4(^.className:="is-size-4", "Joined Players"),
+            <.ol(
+              ((^.className:="column") ::
+                state.value.players.map(p => <.li(p.name))):_*
+            ),
+            <.button(^.className := "button is-primary",
+              "Start game",
+              ^.onClick --> startGame
+            )
           ),
-          <.div(s"events: ${state.value.receivedMessages}")
+          <.small(s"events: ${state.value.receivedMessages.mkString(",")}")
         )
     }
   }
