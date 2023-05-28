@@ -13,7 +13,7 @@ object Main extends IOApp {
 
   def router(wsb: WebSocketBuilder2[IO]): HttpApp[IO] = {
     val state = SessionStorage.empty
-    val fileConfig = FileService.Config[IO]("/Users/nico/Documents/Eclipse/number-cards/frontend")
+    val fileConfig = FileService.Config[IO]("./frontend")
 
     Router(
       "/api" -> WsRouter.routes(wsb, state),

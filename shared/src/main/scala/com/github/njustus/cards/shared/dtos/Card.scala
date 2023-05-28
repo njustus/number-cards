@@ -15,11 +15,11 @@ object Card {
       number <- (1 to 12)
     }  yield Card(Symbol(number), color)
 
-  case class Color(value: String) extends AnyVal {
+  case class Color(value: String) {
     def className: String = s"card-$value"
   }
 
-  case class Symbol(value: String) extends AnyVal {
+  case class Symbol(value: String) {
     def display: String = value
   }
 

@@ -5,7 +5,7 @@ import com.github.njustus.cards.GameTable.GameState
 import com.github.njustus.cards.{GameTable, WsClient}
 import com.github.njustus.cards.lobby.SessionSelector.SelectedSession
 import com.github.njustus.cards.shared.dtos.Player
-import com.github.njustus.cards.shared.events.{GameEvent, GameEventEnvelope, StartGame, gameEventEnvelope}
+import com.github.njustus.cards.shared.events._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import monocle.Focus

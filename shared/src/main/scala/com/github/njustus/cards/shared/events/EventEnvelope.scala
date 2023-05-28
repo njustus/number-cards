@@ -4,8 +4,8 @@ import io.circe._
 
 import java.time.{Instant}
 
-case class EventEnvelope[A: Encoder : Decoder](timestamp: Instant,
-                                               sender: String,
-                                               payload: A) {
+case class EventEnvelope[A](timestamp: Instant,
+                            sender: String,
+                            payload: A) {
   def isSender(name: String): Boolean = name == sender
 }

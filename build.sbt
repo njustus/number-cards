@@ -3,7 +3,7 @@ val circeVersion = "0.14.1"
 val Http4sVersion = "0.23.8"
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.13.9",
+  scalaVersion := "3.2.1",
   scalacOptions ++= Seq()
 )
 
@@ -13,7 +13,7 @@ lazy val shared = (crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pur
     libraryDependencies ++= Seq(
       "io.circe" %%% "circe-core" % circeVersion,
       "io.circe" %%% "circe-generic" % circeVersion,
-      "io.circe" %%% "circe-generic-extras" % circeVersion,
+//      "io.circe" %%% "circe-generic-extras" % circeVersion,
       "io.circe" %%% "circe-parser" % circeVersion,
       "dev.optics" %%% "monocle-core" % "3.2.0",
       "dev.optics" %%% "monocle-macro" % "3.2.0",

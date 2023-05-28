@@ -5,10 +5,11 @@ import io.circe.generic.semiauto._
 
 import java.time.{Instant}
 package object events extends CirceConfig {
-  import events._
+  import dtos._
 
   implicit val gameEventFormat: Codec.AsObject[GameEvent] = deriveCodec[GameEvent]
-  implicit def envelopeFormat[A:Encoder:Decoder]: Codec.AsObject[EventEnvelope[A]] = deriveCodec[EventEnvelope[A]]
+  implicit def envelopeFormat[A:Codec]: Codec.AsObject[EventEnvelope[A]] = deriveCodec[EventEnvelope[A]]
+
 
   type GameEventEnvelope = EventEnvelope[GameEvent]
 
