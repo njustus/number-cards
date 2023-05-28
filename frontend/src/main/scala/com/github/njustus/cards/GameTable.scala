@@ -43,8 +43,6 @@ object GameTable {
 
       def openCard: Option[Card] = playedCards.headOption
 
-      //TODO geht nicht da jeder Teilnehmer eine unterschiedlich-sortierte Liste an Playern hat
-      // auswahl muss backend treffen und als event propagieren
       def nextPlayer: Player = {
         val idx = players.indexOf(currentlyPlaying)
         if (idx < 0)
